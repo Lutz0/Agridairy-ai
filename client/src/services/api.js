@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 // Use relative URL for production (same domain) or environment variable
+// When serving frontend from the same server, we should use a relative path
 const API_URL = process.env.NODE_ENV === 'production' 
     ? '/api' 
     : 'http://localhost:5000/api';

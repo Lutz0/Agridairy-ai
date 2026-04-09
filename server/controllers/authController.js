@@ -51,20 +51,23 @@ exports.login = async (req, res) => {
 
     try {
         if (!username || !password) {
+            console.log('Login attempt with missing credentials');
             return res.status(400).json({ message: 'Username and password are required' });
         }
 
         const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
         if (rows.length === 0) {
             console.log(`Login failed: User ${username} not found`);
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const user = rows[0];
+        console.log(`User found: ${user.username}, comparing password...`);
+        
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             console.log(`Login failed: Incorrect password for ${username}`);
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const token = jwt.sign(
@@ -74,12 +77,12 @@ exports.login = async (req, res) => {
         );
 
         console.log(`Login successful: ${username}`);
-        res.json({ 
+        res.status(200).json({ 
             token, 
             user: { id: user.id, name: user.name, username: user.username, email: user.email, role: user.role, paymentStatus: user.paymentStatus } 
         });
     } catch (err) {
-        console.error('Login Error:', err);
+        console.error('Detailed Login Error:', err);
         res.status(500).json({ message: 'Server error during login', error: err.message });
     }
 };

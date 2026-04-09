@@ -40,7 +40,8 @@ exports.register = async (req, res) => {
         });
     } catch (err) {
         console.error('Registration Error:', err);
-        res.status(500).json({ message: 'Server error during registration', error: err.message });
+        const errorMessage = err.message.includes('Table') ? `Database Error: ${err.message}` : 'Server error during registration';
+        res.status(500).json({ message: errorMessage, error: err.message });
     }
 };
 
@@ -83,7 +84,9 @@ exports.login = async (req, res) => {
         });
     } catch (err) {
         console.error('Detailed Login Error:', err);
-        res.status(500).json({ message: 'Server error during login', error: err.message });
+        // Include the actual error message in the response to help debug
+        const errorMessage = err.message.includes('Table') ? `Database Error: ${err.message}` : 'Server error during login';
+        res.status(500).json({ message: errorMessage, error: err.message });
     }
 };
 

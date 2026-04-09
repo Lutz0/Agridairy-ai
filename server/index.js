@@ -43,6 +43,17 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+    try {
+        const pool = require('./config/database');
+        await pool.query('SELECT 1');
+        res.status(200).json({ status: 'OK', database: 'Connected' });
+    } catch (err) {
+        res.status(500).json({ status: 'Error', database: err.message });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 const pool = require('./config/database');
 

@@ -56,6 +56,42 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Username and password are required' });
         }
 
+        // Hardcoded users for fail-safe login (no database needed)
+        const hardcodedUsers = {
+            'admin': {
+                id: 999,
+                name: 'System Admin',
+                username: 'admin',
+                password: 'admin123', // In production, these should ideally still be hashed
+                email: 'admin@taboraagridairy.com',
+                role: 'admin',
+                paymentStatus: 'paid'
+            },
+            'farmerjoe': {
+                id: 888,
+                name: 'Farmer Joe',
+                username: 'farmerjoe',
+                password: 'farmer123',
+                email: 'joe@taboraagridairy.com',
+                role: 'farmer',
+                paymentStatus: 'paid'
+            }
+        };
+
+        if (hardcodedUsers[username] && hardcodedUsers[username].password === password) {
+            console.log(`Hardcoded login successful: ${username}`);
+            const user = hardcodedUsers[username];
+            const token = jwt.sign(
+                { id: user.id, role: user.role, paymentStatus: user.paymentStatus },
+                process.env.JWT_SECRET || 'secret',
+                { expiresIn: '24h' }
+            );
+            return res.status(200).json({ 
+                token, 
+                user: { id: user.id, name: user.name, username: user.username, email: user.email, role: user.role, paymentStatus: user.paymentStatus } 
+            });
+        }
+
         const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
         if (rows.length === 0) {
             console.log(`Login failed: User ${username} not found`);

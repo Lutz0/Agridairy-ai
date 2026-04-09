@@ -19,9 +19,9 @@ const marketplaceRoutes = require('./routes/marketplace');
 const paymentRoutes = require('./routes/payment');
 const uploadRoutes = require('./routes/upload');
 
-// CORS Configuration - Allow frontend origin in development, same origin in production
+// CORS Configuration - Allow frontend origin in development, all in production
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production' ? true : 'http://localhost:3000',
+    origin: "*", // More permissive for production as requested
     credentials: true
 };
 app.use(cors(corsOptions));
